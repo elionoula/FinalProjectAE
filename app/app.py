@@ -1,119 +1,96 @@
-from typing import List, Dict
-import simplejson as json
-from flask import Flask, request, Response, redirect
-from flask import render_template
+from flask import Flask, render_template, request, redirect, url_for, session
 from flaskext.mysql import MySQL
 from pymysql.cursors import DictCursor
+import re
 
 app = Flask(__name__)
-mysql = MySQL(cursorclass=DictCursor)
 
-app.config['MYSQL_DATABASE_HOST'] = 'db'
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'root'
-app.config['MYSQL_DATABASE_PORT'] = 3306
-app.config['MYSQL_DATABASE_DB'] = 'oscarData'
-mysql.init_app(app)
+# Change this to your secret key (can be anything, it's for extra protection)
+app.secret_key = '1a2b3c4d5e'
 
+# Enter your database connection details below
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = '****'
+app.config['MYSQL_PASSWORD'] = '*******'
+app.config['MYSQL_DB'] = 'pythonlogin'
 
-@app.route('/', methods=['GET'])
-def index():
-    user = {'username': 'Elio'}
-    cursor = mysql.get_db().cursor()
-    cursor.execute('SELECT * FROM oscarAgeFemale')
-    result = cursor.fetchall()
-    return render_template('index.html', title='Home', user=user, cities=result)
+# Intialize MySQL
+mysql = MySQL(app)
 
-
-@app.route('/view/<int:city_id>', methods=['GET'])
-def record_view(city_id):
-    cursor = mysql.get_db().cursor()
-    cursor.execute('SELECT * FROM oscarAgeFemale WHERE id=%s', city_id)
-    result = cursor.fetchall()
-    return render_template('view.html', title='View Form', city=result[0])
-
-
-@app.route('/edit/<int:city_id>', methods=['GET'])
-def form_edit_get(city_id):
-    cursor = mysql.get_db().cursor()
-    cursor.execute('SELECT * FROM oscarAgeFemale WHERE id=%s', city_id)
-    result = cursor.fetchall()
-    return render_template('edit.html', title='Edit Form', city=result[0])
-
-
-@app.route('/edit/<int:city_id>', methods=['POST'])
-def form_update_post(city_id):
-    cursor = mysql.get_db().cursor()
-    inputData = (request.form.get('year'), request.form.get('age'), request.form.get('name'),
-                 request.form.get('movie'), city_id)
-    sql_update_query = """UPDATE oscarAgeFemale t SET t.year = %s, t.age = %s, t.name = %s, t.movie = 
-    %s WHERE t.id = %s """
-    cursor.execute(sql_update_query, inputData)
-    mysql.get_db().commit()
-    return redirect("/", code=302)
+# http://localhost:5000/pythonlogin/ - this will be the login page, we need to use both GET and POST requests
+@app.route('/', methods=['GET', 'POST'])
+def login():
+# Output message if something goes wrong...
+    msg = ''
+    # Check if "username" and "password" POST requests exist (user submitted form)
+    if request.method == 'POST' and 'username' in request.form and 'password' in request.form:
+        # Create variables for easy access
+        username = request.form['username']
+        password = request.form['password']
+        # Check if account exists using MySQL
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM accounts WHERE username = %s AND password = %s', (username, password))
+        # Fetch one record and return result
+        account = cursor.fetchone()
+                # If account exists in accounts table in out database
+        if account:
+            # Create session data, we can access this data in other routes
+            session['loggedin'] = True
+            session['id'] = account['id']
+            session['username'] = account['username']
+            # Redirect to home page
+            return redirect(url_for('home'))
+        else:
+            # Account doesnt exist or username/password incorrect
+            msg = 'Incorrect username/password!'
+    return render_template('index.html', msg='')
 
 
-@app.route('/cities/new', methods=['GET'])
-def form_insert_get():
-    return render_template('new.html', title='New Oscar AwardForm')
+# http://localhost:5000/pythinlogin/register - this will be the registration page, we need to use both GET and POST requests
+@app.route('/pythonlogin/register', methods=['GET', 'POST'])
+def register():
+    # Output message if something goes wrong...
+    msg = ''
+    # Check if "username", "password" and "email" POST requests exist (user submitted form)
+    if request.method == 'POST' and 'username' in request.form and 'password' in request.form and 'email' in request.form:
+        # Create variables for easy access
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
+                # Check if account exists using MySQL
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT * FROM accounts WHERE username = %s', (username))
+        account = cursor.fetchone()
+        # If account exists show error and validation checks
+        if account:
+            msg = 'Account already exists!'
+        elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
+            msg = 'Invalid email address!'
+        elif not re.match(r'[A-Za-z0-9]+', username):
+            msg = 'Username must contain only characters and numbers!'
+        elif not username or not password or not email:
+            msg = 'Please fill out the form!'
+        else:
+            # Account doesnt exists and the form data is valid, now insert new account into accounts table
+            cursor.execute('INSERT INTO accounts VALUES (NULL, %s, %s, %s)', (username, password, email))
+            mysql.connection.commit()
+            msg = 'You have successfully registered!'
+    elif request.method == 'POST':
+        # Form is empty... (no POST data)
+        msg = 'Please fill out the form!'
+    # Show registration form with message (if any)
+    return render_template('register.html', msg=msg)
 
 
-@app.route('/cities/new', methods=['POST'])
-def form_insert_post():
-    cursor = mysql.get_db().cursor()
-    inputData = (request.form.get('id'), request.form.get('year'), request.form.get('age'),
-                 request.form.get('name'), request.form.get('movie'))
-    sql_insert_query = """INSERT INTO oscarAgeFemale (id,`year`,age,`name`,movie) VALUES (%s, %s,%s, %s,%s) """
-    cursor.execute(sql_insert_query, inputData)
-    mysql.get_db().commit()
-    return redirect("/", code=302)
-
-
-@app.route('/delete/<int:city_id>', methods=['POST'])
-def form_delete_post(city_id):
-    cursor = mysql.get_db().cursor()
-    sql_delete_query = """DELETE FROM oscarAgeFemale WHERE id = %s """
-    cursor.execute(sql_delete_query, city_id)
-    mysql.get_db().commit()
-    return redirect("/", code=302)
-
-
-@app.route('/api/v1/oscar', methods=['GET'])
-def api_browse() -> str:
-    cursor = mysql.get_db().cursor()
-    cursor.execute('SELECT * FROM oscarAgeFemale')
-    result = cursor.fetchall()
-    json_result = json.dumps(result);
-    resp = Response(json_result, status=200, mimetype='application/json')
-    return resp
-
-
-@app.route('/api/v1/oscar/<int:city_id>', methods=['GET'])
-def api_retrieve(city_id) -> str:
-    cursor = mysql.get_db().cursor()
-    cursor.execute('SELECT * FROM oscarAgeFemale WHERE id=%s', city_id)
-    result = cursor.fetchall()
-    json_result = json.dumps(result);
-    resp = Response(json_result, status=200, mimetype='application/json')
-    return resp
-
-
-@app.route('/api/v1/oscar/', methods=['POST'])
-def api_add() -> str:
-    resp = Response(status=201, mimetype='application/json')
-    return resp
-
-
-@app.route('/api/v1/oscar/<int:city_id>', methods=['PUT'])
-def api_edit(city_id) -> str:
-    resp = Response(status=201, mimetype='application/json')
-    return resp
-
-
-@app.route('/api/oscar/<int:city_id>', methods=['DELETE'])
-def api_delete(city_id) -> str:
-    resp = Response(status=210, mimetype='application/json')
-    return resp
+# http://localhost:5000/pythinlogin/home - this will be the home page, only accessible for loggedin users
+@app.route('/pythonlogin/home')
+def home():
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        # User is loggedin show them the home page
+        return render_template('home.html', username=session['username'])
+    # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
 
 
 if __name__ == '__main__':
