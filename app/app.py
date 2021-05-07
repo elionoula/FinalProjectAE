@@ -4,18 +4,21 @@ from pymysql.cursors import DictCursor
 import re
 
 app = Flask(__name__)
+# Intialize MySQL
+mysql = MySQL(cursorclass=DictCursor)
+
 
 # Change this to your secret key (can be anything, it's for extra protection)
 app.secret_key = '1a2b3c4d5e'
+
 
 app.config['MYSQL_DATABASE_HOST'] = 'db'
 app.config['MYSQL_DATABASE_USER'] = 'root'
 app.config['MYSQL_DATABASE_PASSWORD'] = 'root'
 app.config['MYSQL_DATABASE_PORT'] = 3306
 app.config['MYSQL_DATABASE_DB'] = 'pythonlogin'
+mysql.init_app(app)
 
-# Intialize MySQL
-mysql = MySQL(app)
 
 # http://localhost:5000/pythonlogin/ - this will be the login page, we need to use both GET and POST requests
 @app.route('/', methods=['GET', 'POST'])
@@ -28,7 +31,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
         # Check if account exists using MySQL
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = mysql.get_db().cursor()
         cursor.execute('SELECT * FROM accounts WHERE username = %s AND password = %s', (username, password))
         # Fetch one record and return result
         account = cursor.fetchone()
@@ -45,6 +48,30 @@ def login():
             msg = 'Incorrect username/password!'
     return render_template('index.html', msg='')
 
+# http://localhost:5000/python/logout - this will be the logout page
+@app.route('/pythonlogin/logout')
+def logout():
+    # Remove session data, this will log the user out
+   session.pop('loggedin', None)
+   session.pop('id', None)
+   session.pop('username', None)
+   # Redirect to login page
+   return redirect(url_for('login'))
+
+# http://localhost:5000/pythinlogin/profile - this will be the profile page, only accessible for loggedin users
+@app.route('/pythonlogin/profile')
+def profile():
+    # Check if user is loggedin
+    if 'loggedin' in session:
+        # We need all the account info for the user so we can display it on the profile page
+        cursor = mysql.get_db().cursor()
+        cursor.execute('SELECT * FROM accounts WHERE id = %s', (session['id'],))
+        account = cursor.fetchone()
+        # Show the profile page with account info
+        return render_template('profile.html', account=account)
+    # User is not loggedin redirect to login page
+    return redirect(url_for('login'))
+
 
 # http://localhost:5000/pythinlogin/register - this will be the registration page, we need to use both GET and POST requests
 @app.route('/register', methods=['GET', 'POST'])
@@ -58,7 +85,7 @@ def register():
         password = request.form['password']
         email = request.form['email']
                 # Check if account exists using MySQL
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor = mysql.get_db().cursor()
         cursor.execute('SELECT * FROM accounts WHERE username = %s', (username))
         account = cursor.fetchone()
         # If account exists show error and validation checks
@@ -73,7 +100,7 @@ def register():
         else:
             # Account doesnt exists and the form data is valid, now insert new account into accounts table
             cursor.execute('INSERT INTO accounts VALUES (NULL, %s, %s, %s)', (username, password, email))
-            mysql.connection.commit()
+            mysql.commit()
             msg = 'You have successfully registered!'
     elif request.method == 'POST':
         # Form is empty... (no POST data)
