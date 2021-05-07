@@ -81,16 +81,16 @@ body {
   	background-color: #7632d6;
   	height: 60px;
   	width: 100%;
-  	border: 0;
+  	position: relative;
 }
 .navtop div {
-  	display: flex;
+  	display: inline;
   	margin: 0 auto;
   	width: 1000px;
   	height: 100%;
 }
 .navtop div h1, .navtop div a {
-  	display: inline-flex;
+  	display: inline-block;
   	align-items: center;
 }
 .navtop div h1 {
