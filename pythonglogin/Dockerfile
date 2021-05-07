@@ -2,11 +2,11 @@ FROM python:3.8
 
 EXPOSE 5000
 
-WORKDIR /app
+WORKDIR /pythonlogin
 
-COPY requirements.txt /app
+COPY requirements.txt /pythonlogin
 RUN pip install  -r requirements.txt --upgrade pip
 
-COPY . /app
+COPY . /pythonlogin
 
 CMD python app.py
