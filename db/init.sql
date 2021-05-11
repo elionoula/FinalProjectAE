@@ -23,7 +23,7 @@ CREATE TABLE `event` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 insert  into `event`(`id`,`title`,`url`,`class`,`start_date`,`end_date`) values
-(1,'Example','http://www.example.com','event-sucess','2019-09-10 20:00:00','2019-09-10 20:01:02'),
-(2,'Roy Tutorials','https://roytuts.com','event-important','2019-09-15 19:00:00','2019-09-15 19:42:45'),
-(3,'Roy Tutorial','https://roytuts.com','event-info','2019-09-23 20:03:05','2019-09-24 08:45:53'),
+(1,'Exam Due','http://www.example.com','event-sucess','2021-05-11 20:00:00','2021-05-11 20:01:02'),
+(2,'Roy Tutorials','https://roytuts.com','event-important','2021-05-10 19:00:00','2021-05-10 19:42:45'),
+(3,'First Day of Summer Classes','https://roytuts.com','event-info','2021-05-24 20:03:05','2021-05-24 08:45:53'),
 (4,'Roy Tutorial','https://roytuts.com','event-error','2019-09-24 20:03:05','2019-09-25 08:45:53');

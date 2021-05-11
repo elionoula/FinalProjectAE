@@ -133,11 +133,14 @@ def profile():
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
+
 @app.route('/calendar')
 def calendar():
     if 'loggedin' in session:
         return render_template("calendar.html", username=session['username'])
+
     return redirect(url_for('login'))
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
