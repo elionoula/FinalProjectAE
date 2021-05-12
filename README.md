@@ -10,15 +10,15 @@ Instructions:
 
 # Screenshots
  ## Log In Page
- ![Login](./screenshots/login.png)
+ ![Login](/screenshots/login.png)
  ## Logged In 
- ![Logged In](./screenshots/loggedin.png)
+ ![Logged In](/screenshots/loggedin.png)
 ## User Profile
- ![Profile](./screenshots/userprofile.png)
+ ![Profile](/screenshots/userprofile.png)
 ## Calendar
- ![Calendar](./screenshots/calendar.png)
+ ![Calendar](/screenshots/calendar.png)
 ## Succesful Register
- ![Register](./screenshots/sucessfulregister.png)
+ ![Register](/screenshots/sucessfulregister.png)
  ## SendGrid Email
- ![Email](./screenshots/sendgrid_email.png)
+ ![Email](/screenshots/sendgrid_email.png)
  
