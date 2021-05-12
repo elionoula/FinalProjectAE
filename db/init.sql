@@ -11,4 +11,3 @@ CREATE TABLE IF NOT EXISTS `accounts` (
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 INSERT INTO `accounts` (`id`, `fullname`, `username`, `password`, `email`) VALUES (1,'test', 'test', 'test', 'test@test.com');
-

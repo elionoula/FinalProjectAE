@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+  <head>
+    <meta charset='utf-8' />
+      <title>Calendar</title>
+    <link href='../static/js/main.css' rel='stylesheet'/>
+    <script src='../static/js/main.js'></script>
+    <script>
+
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'dayGridMonth',
+              events: [
+                  {
+                      title : "Final Exam",
+                      start : "2021-05-11",
+                  },
+                  {
+                      title : "Done with IS601",
+                      start : "2021-05-12"
+                  },]
+          });
+        calendar.render();
+      });
+
+    </script>
+  </head>
+  <body>
+    <div id='calendar'></div>
+  </body>
+{% endblock %}
