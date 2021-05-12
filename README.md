@@ -1,15 +1,24 @@
-# Web App Homework #3
-* By: Elio Nicolas
+# Final Group Project
+* By: Elio Nicolas & Anik Chattopadhyay 
+
+Instructions: 
+- Clone repo with command git clone 
+- Use ```docker-compose up```
+- Log in with 'test' as the username and password, navigate throughout site 
+- Try to register yourself. 
+- Thank you! 
+
 # Screenshots
- ## Data Table in Pycharm
- ![](./screenshots/1-TBLPycharm.png)
- ## Homepage
- ![](./screenshots/2-WebRUN.png)
- ## View Record
- ![](./screenshots/3-ViewRec.png)
- ## New Record
- ![](./screenshots/4-Add.png)
- ### Update Existing Record
- ![](./screenshots/5-UpdateRec.png)
- ## Delete
- ![](./screenshots/6-DeleteSucc.png)
+ ## Log In Page
+ ![Login](/screenshots/login.png)
+ ## Logged In 
+ ![Logged In](/screenshots/loggedin.png)
+## User Profile
+ ![Profile](/screenshots/userprofile.png)
+## Calendar
+ ![Calendar](/screenshots/calendar.png)
+## Succesful Register
+ ![Register](/screenshots/sucessfulregister.png)
+ ## SendGrid Email
+ ![Email](/screenshots/sendgrid_email.png)
+ 

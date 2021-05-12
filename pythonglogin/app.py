@@ -1,7 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flaskext.mysql import MySQL
 import pymysql
 import re
+import sendgrid
+import os
+from sendgrid.helpers.mail import Mail, Email, To, Content
+
 
 app = Flask(__name__)
 
@@ -85,7 +89,17 @@ def register():
             # Account doesnt exists and the form data is valid, now insert new account into accounts table
             cursor.execute('INSERT INTO accounts VALUES (NULL, %s, %s, %s, %s)', (fullname, username, password, email))
             conn.commit()
-
+            sg = sendgrid.SendGridAPIClient(
+                api_key=os.environ.get('SENDGRID_API_KEY'))
+            from_email = Email("is601.spring21@gamil.com")  # Change to your verified sender
+            to_email = To(email)  # Change to your recipient
+            subject = "Verified Sign Up for IS601 Project"
+            content = Content("text/plain", "Thank you for signing up!")
+            mail = Mail(from_email, to_email, subject, content)
+            # Get a JSON-ready representation of the Mail object
+            mail_json = mail.get()
+            # Send an HTTP POST request to /mail/send
+            response = sg.client.mail.send.post(request_body=mail_json)
             msg = 'You have successfully registered!'
     elif request.method == 'POST':
         # Form is empty... (no POST data)
@@ -134,11 +148,13 @@ def profile():
     return redirect(url_for('login'))
 
 
+
 @app.route('/calendar')
 def calendar():
     if 'loggedin' in session:
         return render_template("calendar.html", username=session['username'])
 
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
