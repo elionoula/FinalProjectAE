@@ -1,5 +1,5 @@
 # Final Group Project
-* By: Elio Nicolas & Anik Chattopadhyay 
+* By: Elio Nicolas (Calendar) & Anik Chattopadhyay (SendGrid)
 
 Instructions: 
 - Clone repo with command git clone 
@@ -16,7 +16,7 @@ Instructions:
 ## User Profile
  ![Profile](/screenshots/userprofile.PNG)
 ## Calendar
- ![Calendar](/screenshots/calendar.PNG)
+ ![Calendar](/screenshots/calendar.png)
 ## Succesful Register
  ![Register](/screenshots/sucessfulregister.PNG)
  ## SendGrid Email
